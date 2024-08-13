@@ -1,0 +1,18 @@
+#Treemix run (using the LD-pruned dataset)
+for m in {0..10}
+do
+for i in {0..10}
+do
+treemix -i ~/treemix_input.gz -m ${m} -o ~/LDrun.${i}.${m} -bootstrap -k 500 -root TIN
+done
+done
+#Treemix figure Rcode
+library(RColorBrewer)
+library(R.utils)
+source("plotting_funcs.R")
+# Faltin as outgroup - LDpruned and thinned no missing data
+setwd("~/PROJECTS/Project_Genomics_LK/ms/Figures/treemix/240221.thin.TIN")
+get_f("populations.thin.TIN.5.1")
+par(mfrow=c(1,2))
+plot_tree("populations.thin.TIN.5.1")
+plot_resid("intersectLD.0.1", "poporder.txt")

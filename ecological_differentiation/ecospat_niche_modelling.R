@@ -10,17 +10,15 @@ library(ade4)
 library(tidyterra)
 
 ## Load occurrence and background data
-setwd("~/Dropbox/Postdoc_Milan/LK_Joan/niche_modelling")
-
 ### Occurrence data
 #### Load raster of Chelsa data
-current.list <- list.files(path="./chelsa_present", pattern =".tif", full.names=TRUE)
+current.list <- list.files(path="./chelsa_present", pattern =".tif", full.names=TRUE) # These data are not provided but can be downloaded at https://envicloud.wsl.ch/#/?bucket=https%3A%2F%2Fos.zhdk.cloud.switch.ch%2Fchelsav1%2F&prefix=chelsa_trace%2F
 ras <- stack(current.list)
 names(ras) <- c("bio01","bio02","bio03","bio04","bio05","bio06","bio07","bio08","bio09","bio10","bio11","bio12",
                 "bio13","bio14","bio15","bio16","bio17","bio18","bio19")
 
 #### Load occurrence data and split it into ESU/season
-occurrence <- read.csv("../SDMs/occurrence_data/Table_S5_occurrence_data.csv")
+occurrence <- read.csv("occurrence_data.csv")
 
 west_breed <- occurrence %>% filter(ESU=="Western") %>% filter(season=="breeding")
 colnames(west_breed)[c(1,2)] <- c("x","y") 
@@ -318,7 +316,6 @@ par(mfrow=c(1,2))
 ecospat.plot.overlap.test(eq.test_nonbreed, "D", "Equivalency") 
 ecospat.plot.overlap.test(sim.test_nonbreed, "D", "Similarity")
 
-save.image("~/Dropbox/Postdoc_Milan/LK_Joan/niche_modelling/LK_ecospat_niche_modelling.RData")
 ###########################
 ########## Extra ##########
 ###########################

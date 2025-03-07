@@ -42,8 +42,7 @@ library(adegenet)
 ## 1. Loading and formatting data
 ### Genetic data
 #### Loading genotype data
-setwd("~/Dropbox/Postdoc_Milan/LK_Joan/intersect_Tasos_Joan_vcfs/vcfs/")
-Genotypes <- read.table("./RDA_input.raw", header = T, sep=" ")
+Genotypes <- read.table("RDA_input.raw", header = T, sep=" ")
 Genotypes <- Genotypes[,-(3:6)]
 colnames(Genotypes)[1:2] <- c("ind_id","pop_id")
 
@@ -68,11 +67,11 @@ coord <- as.data.frame(read_excel("genetics_colonies_coords.xlsx"))
 rownames(coord) <- c("ISR","ESS","SIC","TUR","ESN","GRC","GRG","GRL","ITS","MOS","CRO","ITN","KAZ","MON","RUS")
 
 #### Load the rasters where the remove.NAs.stack function from Capblancq & Forester 2021 has been applied
-ras_current <- stack("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/ras_current.grd")
-ras_2040_moderate <- stack("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/chelsa_future_bioclim/ras_2040_moderate.grd")
-ras_2070_moderate <- stack("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/chelsa_future_bioclim/ras_2070_moderate.grd")
-ras_2040_extreme <- stack("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/chelsa_future_bioclim/ras_2040_extreme.grd")
-ras_2070_extreme <- stack("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/chelsa_future_bioclim/ras_2070_extreme.grd")
+ras_current <- stack("ras_current.grd")
+ras_2040_moderate <- stack("ras_2040_moderate.grd")
+ras_2070_moderate <- stack("ras_2070_moderate.grd")
+ras_2040_extreme <- stack("ras_2040_extreme.grd")
+ras_2070_extreme <- stack("ras_2070_extreme.grd")
 
 #### Extracting environmental values for each source population from the rasters
 Env <- data.frame(raster::extract(ras_current, coord[,2:3]))
@@ -91,8 +90,6 @@ head(Env)
 
 ### Inferring population structure
 #### Get mean position in PC1 and 2 from the PCA
-setwd("/Users/apple/Dropbox/Postdoc_Milan/LK_Joan/PCA/")
-
 eigenvec_table <- read.table('LK_intersect_LDpruned_norelated_wCro.eigenvec', header = FALSE)
 
 #### Add populations
@@ -222,7 +219,7 @@ biplot_pop_SNPs_PCs <- ggplot() +
   theme(panel.background = element_blank(), legend.background = element_blank(), panel.grid = element_blank(), plot.background = element_blank(), legend.text=element_text(size=rel(.8)), strip.text = element_text(size=11))
 
 biplot_pop_SNPs_PCs
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/RDA_biplot_pops_SNPs.pdf", biplot_pop_SNPs_PCs, device=cairo_pdf, units="cm", width=18, height=15, limitsize=FALSE)
+ggsave("RDA_biplot_pops_SNPs.pdf", biplot_pop_SNPs_PCs, device=cairo_pdf, units="cm", width=18, height=15, limitsize=FALSE)
 
 ## 3. Prepare list of candidate SNPs
 ### Identify candidate SNPs based on SNP loadings on RDA1
@@ -283,7 +280,7 @@ sel_cand_snps_RDA <- sel_cand_snps$SNP
 
 ### Load list of SNPs that overlapped between PCAdapt and Outflank analyses
 #### Remove duplicates to leave only one SNP per locus
-fst_outliers <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/outlier_lists_Tasos/top.candicates_intersect84.csv")
+fst_outliers <- read.csv("top.candicates_intersect84.csv")
 fst_outliers <- fst_outliers[fst_outliers$X!=22442,]
 fst_outliers$radtag <- gsub('.*_([0-9]+):.*','\\1',fst_outliers$LocusName)
 fst_outliers <- fst_outliers[order(fst_outliers$radtag, fst_outliers$LocusName),] #sort by radtag
@@ -302,7 +299,7 @@ snps_RDA_fst <- unique(c(snps_RDA, snps_fst))
 
 ### Retain SNPs that are within genes
 #### Read SNPEff annotated VCF file
-vcf <- read.vcfR("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/intersect_Tasos_Joan.nomono.nosexchr_ncbi_annotated.vcf", verbose = FALSE )
+vcf <- read.vcfR("intersect_Tasos_Joan.nomono.nosexchr_ncbi_annotated.vcf", verbose = FALSE )
 vcf_info <- vcf@fix[,c(1:3)]
 vcf_annot <- data.frame(mut_type=character(), SNPEff_type=character(), gene_ID=character(), gene_type=character(), substitution=character(), 
                         stringsAsFactors=FALSE)
@@ -321,16 +318,16 @@ vcf_info_cand_snps_ingenes <- vcf_info_cand_snps[vcf_info_cand_snps$gene_type=="
 vcf_info_cand_snps_ingenes <- vcf_info_cand_snps_ingenes[!startsWith(vcf_info_cand_snps_ingenes$gene_ID,"LOC121"),]
 
 #### Write table with gene information for set of candidate genes
-write.table(vcf_info_cand_snps_ingenes, file= "~/Dropbox/Postdoc_Milan/LK_Joan/GEA/SNPS_RDA_12_Fst_gene_info_last.tsv", sep='\t', quote=F, row.names=F)
+write.table(vcf_info_cand_snps_ingenes, file= "SNPS_RDA_12_Fst_gene_info_last.tsv", sep='\t', quote=F, row.names=F)
 
 #### List of final candidate genes
 snps_final_set <- vcf_info_cand_snps_ingenes$radtag_pos
 
 ### PCA of climate-associated SNPs
-vcf_clim_SNPs <- read.vcfR("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/climate_associated_SNPs.vcf")
+vcf_clim_SNPs <- read.vcfR("climate_associated_SNPs.vcf")
 
 #### Load popmap and check that samples in the pops and vcf datasets match
-popmap <- read.delim("~/Dropbox/Postdoc_Milan/LK_Joan/intersect_Tasos_Joan_vcfs/popmap.txt")
+popmap <- read.delim("popmap.txt")
 popmap <- popmap[popmap$ind %in% colnames(vcf@gt),]
 colnames(vcf_clim_SNPs@gt)[-1] == popmap$ind
 
@@ -362,7 +359,7 @@ p_pca_clim_assoc_snps <- ggplot(pca.scores,aes(x=PC1, y=PC2, colour=pop)) +
   xlab(paste0("PC1 ","(",round(var_frac[1]*100,2)," %)")) +
   ylab(paste0("PC2 ","(",round(var_frac[2]*100,2)," %)"))
 p_pca_clim_assoc_snps
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/pca_clim_assoc_snps_PC1-PC2.pdf", p_pca_clim_assoc_snps, device=cairo_pdf, units="cm", width=18, height=15, limitsize=FALSE)
+ggsave("pca_clim_assoc_snps_PC1-PC2.pdf", p_pca_clim_assoc_snps, device=cairo_pdf, units="cm", width=18, height=15, limitsize=FALSE)
 
 #### ggplot color by cluster
 mypal<-(c("#ff6d00","#ff6d00","#ff6d00","#ff6d00","#ff6d00","#ff6d00","#ff6d00","#ff6d00",
@@ -381,7 +378,7 @@ p_pca_clim_assoc_snps <- ggplot(pca.scores,aes(x=PC1, y=PC2, colour=pop)) +
   xlab(paste0("PC1 ","(",round(var_frac[1]*100,2)," %)")) +
   ylab(paste0("PC2 ","(",round(var_frac[2]*100,2)," %)"))
 p_pca_clim_assoc_snps
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/pca_clim_assoc_snps_PC1-PC2_per_cluster.pdf", p_pca_clim_assoc_snps, device=cairo_pdf, units="cm", width=18, height=15, limitsize=FALSE)
+ggsave("pca_clim_assoc_snps_PC1-PC2_per_cluster.pdf", p_pca_clim_assoc_snps, device=cairo_pdf, units="cm", width=18, height=15, limitsize=FALSE)
 
 ## 4. Allele turnover across the landscape
 ### Create a list of AllFreq headers that match the candidate SNPs
@@ -451,7 +448,7 @@ p_bio_imp <- ggplot(bio_cand_d) +
   xlab(expression(R^2~" weighted importance")) + ylab("")
 
 p_bio_imp
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/GF_bioclim_imp.pdf", p_bio_imp, device=cairo_pdf, units="cm", width=6, height=11, limitsize=FALSE)
+ggsave("GF_bioclim_imp.pdf", p_bio_imp, device=cairo_pdf, units="cm", width=6, height=11, limitsize=FALSE)
 
 ### Allele turnover functions across the landscape
 #### for BIO19
@@ -526,15 +523,15 @@ p_enriched_RDA <- ggplot() +
   theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=11))
 
 p_enriched_RDA
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/cand_SNPs_RDA_space.pdf", p_enriched_RDA, device=cairo_pdf, units="cm", width=15, height=15, limitsize=FALSE)
+ggsave("cand_SNPs_RDA_space.pdf", p_enriched_RDA, device=cairo_pdf, units="cm", width=15, height=15, limitsize=FALSE)
 
 #### Upload the map and species range shape file
 admin <- ne_countries(scale = "medium", returnclass = "sf")
-range <- readOGR("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/current_SDM_shapefile/lower_res/current_suitable_breeding_range_buff005degrees.shp") 
+range <- readOGR("current_suitable_breeding_range_buff005degrees.shp") 
 crs(range) <- '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 
 #### Load the function to predict the adaptive index across the landscape
-source("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/RDA_Capblanq_example/RDA-landscape-genomics/src/adaptive_index.R")
+source("adaptive_index.R")
 
 #### Running the function for all the climatic pixels of Lesser kestrel distribution range
 res_RDA_proj_current <- adaptive_index(RDA = RDA_outliers, K = 1, env_pres = ras_current, range = range, method = "loadings", scale_env = scale_env, center_env = center_env)
@@ -564,7 +561,7 @@ p_adaptive_landscape <- ggplot(data = TAB_RDA) +
   theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=11))
 
 p_adaptive_landscape
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/adaptive_landscape_bio-19-8-2-10-15.pdf", p_adaptive_landscape, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
+ggsave("adaptive_landscape_bio-19-8-2-10-15.pdf", p_adaptive_landscape, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
 
 ## 6. Manhattan plot of SNPs associated with RDA1
 ### Get info to plot Manhattan
@@ -579,7 +576,7 @@ TAB_manhatan <- data.frame(radtag_pos = SNP_ID,
                            Outliers = Outliers)
 TAB_manhatan <- TAB_manhatan %>% left_join(vcf_info)
 TAB_manhatan <- TAB_manhatan[,c(1:5,7,9)]
-chrom_names <- read.delim("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/correspondence_chrom_names.txt", header=F)
+chrom_names <- read.delim("correspondence_chrom_names.txt", header=F)
 colnames(chrom_names) <- c("chromosome", "CHROM")
 TAB_manhatan <- TAB_manhatan %>% left_join(chrom_names)
 TAB_manhatan$RDA1_pol <- ifelse(TAB_manhatan$RDA1<0,-TAB_manhatan$RDA1,TAB_manhatan$RDA1)
@@ -648,10 +645,10 @@ p_manhattan_climate_pol <- ggplot(TAB_manhatan[TAB_manhatan$Outliers=="Neutral",
         axis.title = element_text(size=16))
 p_manhattan_climate_pol
 
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/manhattan_climate.pdf", p_manhattan_climate_pol, device=cairo_pdf, units="cm", width=20, height=7, limitsize=FALSE)
+ggsave("manhattan_climate.pdf", p_manhattan_climate_pol, device=cairo_pdf, units="cm", width=20, height=7, limitsize=FALSE)
 
 ### 7. Spearman correlation between candidate SNPs and bioclimatic variables
-cand_genes_function <- read_excel("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/Local_adapt_SNPS_RDA_12_Fst_gene_info_last.xlsx")
+cand_genes_function <- read_excel("Local_adapt_SNPS_RDA_12_Fst_gene_info_last.xlsx")
 records_cand <- gsub("^X([0-9]+)\\.([0-9]+).*","\\1:\\2",colnames(gf_data_candidate)) %in% cand_genes_function$radtag_pos
 cand_snps_data <- gf_data_candidate[,records_cand]
 cand_snps_data <- merge(cand_snps_data,Env, by=0)
@@ -730,11 +727,11 @@ p_cand_genes_heatmap <- ggplot(cand_genes_function_long, aes(x = variable, y = g
   xlab("") + ylab("Gene ID")
 p_cand_genes_heatmap
 
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/candidate_genes_heatmap.pdf", p_cand_genes_heatmap, device = cairo_pdf, units="cm", width=5, height=18, limitsize=FALSE)
+ggsave("candidate_genes_heatmap.pdf", p_cand_genes_heatmap, device = cairo_pdf, units="cm", width=5, height=18, limitsize=FALSE)
 
 ## 9. Calculate local genetic offsets with RDA
-### Function to predict genomic offset from a RDA model
-source("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/RDA_Capblanq_example/RDA-landscape-genomics/src/genomic_offset.R")
+### Function to predict genomic offset from a RDA model from Capblancq and Forester 2021
+source("genomic_offset.R")
 
 ### Running the function for the 3 future scenarios
 res_RDA_proj2040mod <- genomic_offset(RDA_outliers, K = 1, env_pres = ras_current, env_fut = ras_2040_moderate, range = range, method = "loadings", scale_env = scale_env, center_env = center_env)
@@ -769,7 +766,7 @@ p_genom_offset_2040_moderate <- ggplot(data = RDA_proj_offset_2040mod) +
   theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=11))
 
 p_genom_offset_2040_moderate
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/genom_offset_2040_moderate_bio19-8-2-15-10.pdf", p_genom_offset_2040_moderate, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
+ggsave("genom_offset_2040_moderate_bio19-8-2-15-10.pdf", p_genom_offset_2040_moderate, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
 
 p_genom_offset_2040_extreme <- ggplot(data = RDA_proj_offset_2040ext) + 
   geom_sf(data = admin, fill=gray(.8), colour=gray(.8), size=0.05) +
@@ -783,7 +780,7 @@ p_genom_offset_2040_extreme <- ggplot(data = RDA_proj_offset_2040ext) +
   theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=11))
 
 p_genom_offset_2040_extreme
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/genom_offset_2040_extreme_bio19-8-2-15-10.pdf", p_genom_offset_2040_extreme, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
+ggsave("genom_offset_2040_extreme_bio19-8-2-15-10.pdf", p_genom_offset_2040_extreme, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
 
 p_genom_offset_2070_extreme <- ggplot(data = RDA_proj_offset_2070ext) + 
   geom_sf(data = admin, fill=gray(.8), colour=gray(.8), size=0.05) +
@@ -797,14 +794,14 @@ p_genom_offset_2070_extreme <- ggplot(data = RDA_proj_offset_2070ext) +
   theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=11))
 
 p_genom_offset_2070_extreme
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/genom_offset_2070_extreme_bio19-8-2-15-10.pdf", p_genom_offset_2070_extreme, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
+ggsave("genom_offset_2070_extreme_bio19-8-2-15-10.pdf", p_genom_offset_2070_extreme, device = cairo_pdf, units="cm", width=18, height=6, limitsize=FALSE)
 
 ## 10. Calculate genomic offsets for the two main groups
 ### Load breeding data for each of the groups
-east <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/old_Mattia/eastern_data_bioclim_5km_buffer_no_dupl.csv")
+east <- read.csv("eastern_data_bioclim_5km_buffer_no_dupl.csv")
 east <- east[,c(5,12,13)]
 east$group <- "eastern"
-west <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/old_Mattia/western_data_bioclim_5km_buffer_no_dupl.csv")
+west <- read.csv("western_data_bioclim_5km_buffer_no_dupl.csv")
 west <- west[,c(5,13,14)]
 west$group <- "western"
 presence <- rbind(east,west)
@@ -857,7 +854,7 @@ p_gen_off_groups_2040_mod <- ggplot(data=genom_offset_presence, aes(y=Global_off
   ylab("Genetic offset")
 p_gen_off_groups_2040_mod
 
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/local_offset_densities_groups_2040_mod_bio19-8-2-15-10.pdf", p_gen_off_groups_2040_mod, device = cairo_pdf, units="cm", width=4, height=12, limitsize=FALSE)
+ggsave("local_offset_densities_groups_2040_mod_bio19-8-2-15-10.pdf", p_gen_off_groups_2040_mod, device = cairo_pdf, units="cm", width=4, height=12, limitsize=FALSE)
 
 median_west <- median(genom_offset_presence$Global_offset_2040_ext[genom_offset_presence$group=="western"])
 median_east <- median(genom_offset_presence$Global_offset_2040_ext[genom_offset_presence$group=="eastern"])
@@ -873,7 +870,7 @@ p_gen_off_groups_2040_ext <- ggplot(data=genom_offset_presence, aes(y=Global_off
   ylab("Genetic offset")
 p_gen_off_groups_2040_ext
 
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/local_offset_densities_groups_2040_bio19-8-2-15-10.pdf", p_gen_off_groups_2040, device = cairo_pdf, units="cm", width=4, height=12, limitsize=FALSE)
+ggsave("local_offset_densities_groups_2040_bio19-8-2-15-10.pdf", p_gen_off_groups_2040, device = cairo_pdf, units="cm", width=4, height=12, limitsize=FALSE)
 
 median_west <- median(genom_offset_presence$Global_offset_2070_ext[genom_offset_presence$group=="western"])
 median_east <- median(genom_offset_presence$Global_offset_2070_ext[genom_offset_presence$group=="eastern"])
@@ -889,7 +886,7 @@ p_gen_off_groups_2070_ext <- ggplot(data=genom_offset_presence, aes(y=Global_off
   ylab("Genetic offset")
 p_gen_off_groups_2070_ext
 
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/plots/local_offset_densities_groups_2070_bio19-8-2-15-10.pdf", p_gen_off_groups_2070, device = cairo_pdf, units="cm", width=4, height=12, limitsize=FALSE)
+ggsave("local_offset_densities_groups_2070_bio19-8-2-15-10.pdf", p_gen_off_groups_2070, device = cairo_pdf, units="cm", width=4, height=12, limitsize=FALSE)
 
 ### Statistical differences between western and eastern group in genetic offsets
 t.test(genom_offset_presence$Global_offset_2040[genom_offset_presence$group=="western"],

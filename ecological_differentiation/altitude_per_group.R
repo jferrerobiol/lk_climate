@@ -5,16 +5,16 @@ library(gghalves)
 library(ggdist)
 
 ### Load data for each of the groups
-east_breed <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/old_Mattia/eastern_data_bioclim_5km_buffer_no_dupl.csv")
+east_breed <- read.csv("eastern_data_bioclim_5km_buffer_no_dupl.csv")
 east_breed <- east_breed %>% select(X1,Y1)
 east_breed$group <- "eastern_breeding"
-west_breed <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/old_Mattia/western_data_bioclim_5km_buffer_no_dupl.csv")
+west_breed <- read.csv("western_data_bioclim_5km_buffer_no_dupl.csv")
 west_breed <- west_breed %>% select(X1,Y1)
 west_breed$group <- "western_breeding"
-east_nonbreed <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/old_Mattia/wintering_eastern_bioclim_5km_buffer_no_dupl.csv")
+east_nonbreed <- read.csv("wintering_eastern_bioclim_5km_buffer_no_dupl.csv")
 east_nonbreed <- east_nonbreed %>% select(X1,Y1)
 east_nonbreed$group <- "eastern_nonbreeding"
-west_nonbreed <- read.csv("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/old_Mattia/wintering_western_bioclim_5km_buffer_no_dupl.csv")
+west_nonbreed <- read.csv("wintering_western_bioclim_5km_buffer_no_dupl.csv")
 west_nonbreed <- west_nonbreed %>% select(X1,Y1)
 west_nonbreed$group <- "western_nonbreeding"
 
@@ -40,7 +40,7 @@ p_elevation <- ggplot(presence, aes(x=group, y=elevation, colour=group, fill=gro
   scale_fill_manual(values=c("#ff6d00","#5c7ec0","#ffc499","#bdcbe5")) +
   xlab("") + ylab("Elevation (m)")
 p_elevation
-ggsave("~/Dropbox/Postdoc_Milan/LK_Joan/presence_data/LK_elevation_per_group.pdf", p_elevation, device=cairo_pdf, units="cm", width=24, height=12, limitsize=FALSE)
+ggsave("LK_elevation_per_group.pdf", p_elevation, device=cairo_pdf, units="cm", width=24, height=12, limitsize=FALSE)
 
 # Check preesence data
 ggplot(data = presence) + 

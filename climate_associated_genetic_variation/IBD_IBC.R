@@ -17,11 +17,9 @@ library(ecodist)
 ## Script to compute IBD and IBE ##
 ###################################
 
-setwd("~/Dropbox/Postdoc_Milan/LK_Joan/IBD_analyses")
-
 # IBD
 # Load colony coordinates
-bred_sites <- read.delim("loc_coordinates_bo.txt", dec = ",")
+bred_sites <- read.delim("IBD_coordinates.txt", dec = ",")
 bred_sites_coord <- bred_sites[,c(3,2)]
 rownames(bred_sites_coord) <- bred_sites$pop
 colnames(bred_sites_coord) <- c("x","y")
@@ -91,23 +89,7 @@ ggsave("LK_IBD.pdf", p_IBD, device=cairo_pdf, units="cm", width=15, height=15, l
 
 # IBC (isolation-by-climate)
 ## Calculate climatic distance using PCA
-### Load the raster of current climatic data
-ras_current <- stack("~/Dropbox/Postdoc_Milan/LK_Joan/GEA/ras_current.grd")
-
-### Extracting environmental values for each source population from the rasters
-Env <- data.frame(raster::extract(ras_current, coord[,2:3]))
-
-### Standardization of the variables
-Env <- scale(Env, center=TRUE, scale=TRUE) # center=TRUE, scale=TRUE are the defaults for scale()
-
-### Recovering scaling coefficients
-scale_env <- attr(Env, 'scaled:scale')
-center_env <- attr(Env, 'scaled:center')
-
-### Climatic table
-Env <- as.data.frame(Env)
-row.names(Env) <- rownames(coord)
-head(Env)
+Env <- read.csv("bioclim_12pop.csv")
 
 res.pca <- prcomp(Env, scale = FALSE)
 fviz_eig(res.pca)

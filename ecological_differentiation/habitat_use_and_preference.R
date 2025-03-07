@@ -10,8 +10,6 @@ library(tidyverse)
 library(tidyr)
 
 ## Load tifs of land cover use
-setwd("/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use")
-
 ### Breeding
 ras.list_breed <- list.files(path="./breeding", pattern =".tif", full.names=TRUE)
 for (i in 1:length(ras.list_breed)) {
@@ -47,19 +45,19 @@ open_sea <- ras_breed_single_layers$`200`
 ras_breed_combined_layers <- c(closed_forest, open_forest, shrubs, herb_veg, herb_wet, moss_lich, bare, cropland, urban, snow_ice, perm_water, open_sea)
 print("raster of reclassified land use categories done")
 ## Load raster at 2.5 arcmin resolution
-ras_to_right_res <- raster::stack("/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/stack_breeding_east_chelsa_past_recl.grd")
+ras_to_right_res <- raster::stack("stack_breeding_east_chelsa_past_recl.grd")
 ## Convert it to spatraster
 ras_to_right_res <- terra::rast(ras_to_right_res)
 ## Change resolution of land use data raster to 2.5 arcmin
 ras_breed_combined_layers_rightres <- terra::resample(ras_breed_combined_layers, ras_to_right_res)
 print("resolution changed to 2.5 arcmin")
 ## Write the land use raster at 2.5 arcmin resolution 
-terra::writeRaster(ras_breed_combined_layers_rightres, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/ras_breed_combined_layers_rightres.grd")
+terra::writeRaster(ras_breed_combined_layers_rightres, "ras_breed_combined_layers_rightres.grd")
 ## Convert to dataframe
 d_ras_breed_combined_layers_rightres <- terra::as.data.frame(ras_breed_combined_layers_rightres, xy=T, cells=T)
 print("raster converted to data frame")
 ## Write dataframe
-write.table(d_ras_breed_combined_layers_rightres, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/d_ras_breed_combined_layers_rightres.tsv", sep ="\t", quote=F, row.names=F)
+write.table(d_ras_breed_combined_layers_rightres, "d_ras_breed_combined_layers_rightres.tsv", sep ="\t", quote=F, row.names=F)
 print("finished")
 
 ### Wintering
@@ -79,7 +77,7 @@ ras_wint_spatraster <- terra::rast(ras_wint)
 ## Split land use categories to individual layers
 ras_wint_single_layers <- terra::segregate(ras_wint_spatraster)
 print("split land use to individual layers done")
-#terra::writeRaster(ras_wint_single_layers, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/ras_wint_ind_layers_highres.grd")
+#terra::writeRaster(ras_wint_single_layers, "ras_wint_ind_layers_highres.grd")
 ## Merge land use categories
 closed_forest <- ras_wint_single_layers$`111` + ras_wint_single_layers$`112` + ras_wint_single_layers$`114` + ras_wint_single_layers$`115`+ ras_wint_single_layers$`116`
 open_forest <- ras_wint_single_layers$`121` + ras_wint_single_layers$`122` + ras_wint_single_layers$`124` + ras_wint_single_layers$`125`+ ras_wint_single_layers$`126`
@@ -97,19 +95,19 @@ open_sea <- ras_wint_single_layers$`200`
 ras_wint_combined_layers <- c(closed_forest, open_forest, shrubs, herb_veg, herb_wet, moss_lich, bare, cropland, urban, snow_ice, perm_water, open_sea)
 print("raster of reclassified land use categories done")
 ## Load raster at 2.5 arcmin resolution
-ras_to_right_res <- raster::stack("/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/stack_breeding_east_chelsa_past_recl.grd")
+ras_to_right_res <- raster::stack("stack_breeding_east_chelsa_past_recl.grd")
 ## Convert it to spatraster
 ras_to_right_res <- terra::rast(ras_to_right_res)
 ## Change resolution of land use data raster to 2.5 arcmin
 ras_wint_combined_layers_rightres <- terra::resample(ras_wint_combined_layers, ras_to_right_res)
 print("resolution changed to 2.5 arcmin")
 ## Write the land use raster at 2.5 arcmin resolution 
-terra::writeRaster(ras_wint_combined_layers_rightres, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/ras_wint_combined_layers_rightres.grd")
+terra::writeRaster(ras_wint_combined_layers_rightres, "ras_wint_combined_layers_rightres.grd")
 ## Convert to dataframe
 d_ras_wint_combined_layers_rightres <- terra::as.data.frame(ras_wint_combined_layers_rightres, xy=T, cells=T)
 print("raster converted to data frame")
 ## Write dataframe
-write.table(d_ras_wint_combined_layers_rightres, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/d_ras_wint_combined_layers_rightres.tsv", sep ="\t", quote=F, row.names=F)
+write.table(d_ras_wint_combined_layers_rightres, "d_ras_wint_combined_layers_rightres.tsv", sep ="\t", quote=F, row.names=F)
 print("finished")
 
 ## Load rasters to extract data from occurrence and background
@@ -257,7 +255,7 @@ presence_breed_Eur <- presence_breed_Eur %>% mutate(background_closed_forest=tot
   mutate(background_snow_ice=totals_background_breed_Eur_abs[10]) %>%
   mutate(background_perm_water=totals_background_breed_Eur_abs[11]) %>%
   mutate(background_open_sea=totals_background_breed_Eur_abs[12])
-write.table(presence_breed_Eur, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/land_use_breed_Western.csv", sep =",", quote=F, row.names=F)
+write.table(presence_breed_Eur, "land_use_breed_Western.csv", sep =",", quote=F, row.names=F)
 
 #### show totals
 totals_presence_breed_Eur_abs <- c(sum(presence_breed_Eur$closed_forest)/length(presence_breed_Eur$urban),
@@ -292,7 +290,7 @@ presence_breed_Asi <- presence_breed_Asi %>% mutate(background_closed_forest=tot
   mutate(background_snow_ice=totals_background_breed_Asi_abs[10]) %>%
   mutate(background_perm_water=totals_background_breed_Asi_abs[11]) %>%
   mutate(background_open_sea=totals_background_breed_Asi_abs[12])
-write.table(presence_breed_Asi, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/land_use_breed_Eastern.csv", sep =",", quote=F, row.names=F)
+write.table(presence_breed_Asi, "land_use_breed_Eastern.csv", sep =",", quote=F, row.names=F)
 
 #### show totals
 totals_presence_breed_Asi_abs <- c(sum(presence_breed_Asi$closed_forest)/length(presence_breed_Asi$urban),
@@ -324,7 +322,7 @@ presence_winter_Eur <- presence_winter_Eur %>% mutate(background_closed_forest=t
   mutate(background_snow_ice=totals_background_winter_Eur_abs[10]) %>%
   mutate(background_perm_water=totals_background_winter_Eur_abs[11]) %>%
   mutate(background_open_sea=totals_background_winter_Eur_abs[12])
-write.table(presence_winter_Eur, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/land_use_winter_Western.csv", sep =",", quote=F, row.names=F)
+write.table(presence_winter_Eur, "land_use_winter_Western.csv", sep =",", quote=F, row.names=F)
 
 #### show totals
 totals_presence_winter_Eur_abs <- c(sum(presence_winter_Eur$closed_forest)/length(presence_winter_Eur$urban),
@@ -356,7 +354,7 @@ presence_winter_Asi <- presence_winter_Asi %>% mutate(background_closed_forest=t
   mutate(background_snow_ice=totals_background_winter_Asi_abs[10]) %>%
   mutate(background_perm_water=totals_background_winter_Asi_abs[11]) %>%
   mutate(background_open_sea=totals_background_winter_Asi_abs[12])
-write.table(presence_winter_Asi, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/land_use_winter_Eastern.csv", sep =",", quote=F, row.names=F)
+write.table(presence_winter_Asi, "land_use_winter_Eastern.csv", sep =",", quote=F, row.names=F)
 
 #### show totals
 totals_presence_winter_Asi_abs <- c(sum(presence_winter_Asi$closed_forest)/length(presence_winter_Asi$urban),
@@ -380,7 +378,7 @@ d_land_use_percent_wide <- totals_presence_breed_Eur_abs %>% bind_rows(totals_pr
   mutate(ESU_season=c("Western_breed","Eastern_breed","Western_winter","Eastern_winter"))
 
 d_land_use_percent_long <- d_land_use_percent_wide %>% pivot_longer(cols = !ESU_season)
-write.table(d_land_use_percent_long, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/d_occurrence_land_use_percent_long.csv", sep =",", quote=F, row.names=F)
+write.table(d_land_use_percent_long, "d_occurrence_land_use_percent_long.csv", sep =",", quote=F, row.names=F)
 
 ### Background data
 d_land_use_background_percent_wide <- totals_background_breed_Eur_abs %>% bind_rows(totals_background_breed_Asi_abs) %>%
@@ -388,7 +386,7 @@ d_land_use_background_percent_wide <- totals_background_breed_Eur_abs %>% bind_r
   mutate(ESU_season=c("Western_breed","Eastern_breed","Western_winter","Eastern_winter"))
 
 d_land_use_background_percent_long <- d_land_use_background_percent_wide %>% pivot_longer(cols = !ESU_season)
-write.table(d_land_use_background_percent_long, "/home/users/joan.ferrer/GRILLAIO2/GRILLAIO/LK_genomics/land_use/d_background_land_use_percent_long.csv", sep =",", quote=F, row.names=F)
+write.table(d_land_use_background_percent_long, "d_background_land_use_percent_long.csv", sep =",", quote=F, row.names=F)
 
 ## From here I do it again in my local laptop
 ## Plot occurrence and background land use categories with barplot

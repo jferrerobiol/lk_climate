@@ -1,0 +1,63 @@
+#OUTFLANK
+library(OutFLANK)
+myfile <- read.vcfR("intersect_Tasos_Joan.nomono.nosexchr_ncbi_annotated.vcf", verbose=FALSE)
+mygeno<-extract.gt(myfile, element = "GT", convertNA =FALSE)
+locinames<- paste(mygeno@fix[,"CHROM"], mygeno@fix[,"POS"],mygeno@fix[,"ID"], sep="-")
+mygeno[mygeno=="./."]<-9
+mygeno[mygeno=="0/0"]<-0
+mygeno[mygeno=="0/1"]<-1
+mygeno[mygeno=="1/1"]<-2
+SNPdata <- t(mygeno)
+#import population data
+popmap <- read.delim("~/Lesser_Kestrel/Outflank/LK_intersect84/popmap.txt")
+FstDataFrame <- MakeDiploidFSTMat(SNPdata,locinames,popmap$strata)
+plot(FstDataFrame$FST, FstDataFrame$FSTNoCorr,
+xlim=c(-0.01,0.3), ylim=c(-0.01,0.3),
+pch=20)
+abline(0,1)
+k=2
+outlier<- OutFLANK(FstDataFrame, NumberOfSamples=k, RightTrimFraction = 0.06, LeftTrimFraction = 0.35, qthreshold = 0.05)
+OutFLANKResultsPlotter(outlier, withOutliers = TRUE,
+NoCorr = TRUE, Hmin = 0.1, binwidth = 0.001, Zoom =
+FALSE, RightZoomFraction = 0.05, titletext = NULL)
+hist(outlier$results$pvaluesRightTail)
+sum(outlier$results$qvalues<0.05, na.rm=TRUE)
+candidates <- outlier$results$qvalues<0.05 & outlier$results$He>0.1
+topcan<- outlier$results[candidates,]
+topcan[order(topcan$LocusName),]
+write.csv(topcan, "top.candidates_intersect84.csv", row.names = TRUE)
+#PCADAPT
+library(pcadapt)
+lk.file<- "intersect86.bed"
+lk.adapt<- read.pcadapt(lk.file, type = "bed")
+lk.pca10 <- pcadapt(input = lk.adapt, K = 10)
+plot(lk.pca10, option = "screeplot")
+poplist.names.all<- popmap86$strata
+print(poplist.names.all)
+plot(lk.pca10, option = "scores", pop = poplist.names.all)
+plot(lk.pca10, option = "scores", i = 1, j = 2, pop = poplist.names)
+k=2
+lk.pca.2 <- pcadapt(input = lk.adapt, K = 2)
+summary(lk.pca.2)
+p1<-plot(lk.pca.2 , option = "manhattan")
+p2<-plot(lk.pca.2, option = "qqplot")
+p3<-hist(lk.pca.2$pvalues, xlab = "p-values", main = NULL, breaks = 50, col = "orange")
+p4<-plot(lk.pca.2, option = "stat.distribution")
+##cut-off for outliers
+#q values
+library(qvalue)
+qval <- qvalue(lk.pca.2$pvalues)$qvalues
+alpha <- 0.05
+out.1 <- which(qval < alpha)
+length(out.1)
+#Benjamini-Hochberg Procedure
+padj <- p.adjust(lk.pca.2$pvalues,method="BH")
+out.2 <- which(padj < alpha)
+length(out.2) #with a=0.05
+#Bonferroni correction
+padj.Bon <- p.adjust(lk.pca.2$pvalues,method="bonferroni")
+out.bonf <- which(padj.Bon < alpha)
+length(out.bonf) 
+##we keep k=2 for a=0.05 and Bonferroni write.csv outliers
+outliers.k2<-as.character(intersect86[,2])[out.bonf]
+write.csv(outliers.k2, "outliers.csv", row.names = TRUE)
